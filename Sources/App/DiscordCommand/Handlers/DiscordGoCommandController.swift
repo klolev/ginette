@@ -60,7 +60,7 @@ struct DiscordGoCommandController {
         }
         
         let creationController = BingoGameCreationController {
-            try await BingoGame.query(on: app.db)
+            try! await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == guildID)
                 .count() > 0
         }
@@ -74,7 +74,7 @@ struct DiscordGoCommandController {
         case .success(let gameDTO):
             let game = BingoGame()
             game.update(with: gameDTO)
-            try await game.update(on: app.db)
+            try await game.create(on: app.db)
             return .success(.init(content: "OKIDOU! C'EST PARTI MA CHOUETTE! 💃"))
         case .failure(let error):
             return .failure(.creationError(error))

@@ -24,10 +24,14 @@ struct DiscordTrashCommandController: DiscordInteractionRequestHandler {
             return .failure(.invalidInput)
         }
         
-        guard let game = try? await BingoGame.query(on: app.db).filter(\.$discordGuildID == guildID).first() else {
+        guard let game = try? await BingoGame.query(on: app.db)
+            .with(\.$players)
+            .filter(\.$discordGuildID == guildID)
+            .first() else {
             return .failure(.noGameInProgress)
         }
         
+        try await game.players.delete(on: app.db)
         try await game.delete(on: app.db)
         
         return .success(.editMessage(.init(content: "Oki c'est aux poubelles 😔😔😔")))

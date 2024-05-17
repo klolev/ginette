@@ -20,13 +20,14 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
             return nil
         }
         
-        guard let user = interaction.user,
+        guard let user = interaction.member?.user,
               let guildID = interaction.guild_id?.rawValue else {
             return .failure(.invalidInput)
         }
         
         let gameForGuild = { (id: String) async throws -> BingoGame? in
             try await BingoGame.query(on: app.db)
+                .with(\.$players)
                 .filter(\.$discordGuildID == id)
                 .first()
         }
@@ -36,16 +37,19 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
                 return nil
             }
             
-            return BingoGame.DTO(from: game)
+            return BingoGame.DTO(from: game, withChildren: true)
         }
         
         let result = await controller
             .join(playerNamed: "\(user.username)#\(user.discriminator)",
-                  withDiscordId: user.discriminator,
+                  withDiscordId: user.id.rawValue,
                   inGuildID: guildID)
         
         switch result {
-        case .success:
+        case .success(let playerDTO):
+            let player = Player()
+            player.update(from: playerDTO)
+            try await player.create(on: app.db)
             return .success(.editMessage(.init(content: "BIENVENUE DANS LA PARTIE MA CHOUETTE!! ☺️")))
         case .failure(let error):
             return .failure(.joinError(error))

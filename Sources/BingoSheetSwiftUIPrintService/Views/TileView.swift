@@ -16,7 +16,7 @@ struct TileView: View {
         .overlay {
             Text(tile.value)
                 .font(.system(size: 24, weight: .bold))
-                .minimumScaleFactor(0.5)
+                .minimumScaleFactor(0.3)
                 .lineLimit(3)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)

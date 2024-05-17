@@ -55,13 +55,13 @@ struct EventHandler: GatewayEventHandler {
                                             DiscordJoinCommandController(),
                                             DiscordTilesCommandController(),
                                             DiscordFillCommandController(),
+                                            DiscordSheetCommandController(),
                                             DiscordTrashCommandController()])
     }
     let app: Application
 
     func onInteractionCreate(_ interaction: Interaction) async throws {
-        print(interaction)
-        if interaction.type == .applicationCommand {
+        if (try? interaction.data?.requireApplicationCommand())?.options?.first?.name != DiscordCommandController.SubcommandType.go.rawValue {
             try await client.createInteractionResponse(
                 id: interaction.id,
                 token: interaction.token,
@@ -70,25 +70,22 @@ struct EventHandler: GatewayEventHandler {
         }
         
         let sendMessage = { (payload: Payloads.EditWebhookMessage) in
-            try await client.updateOriginalInteractionResponse(token: Environment.process.TOKEN!,
-                                                               payload: payload)
+            try await client.updateOriginalInteractionResponse(token: interaction.token, payload: payload)
         }
         
-        do {
-            switch try await handler.on(interaction: interaction, app: app) {
-            case .success(.editMessage(let payload)):
-                _ = try await sendMessage(payload)
-            case .success(.modal(let modal)):
-                _ = try await client.createInteractionResponse(id: interaction.id,
-                                                           token: Environment.process.TOKEN!,
+        switch try await handler.on(interaction: interaction, app: app) {
+        case .success(.editMessage(let payload)):
+            _ = try await sendMessage(payload).guardSuccess()
+        case .success(.modal(let modal)):
+            _ = try await client.createInteractionResponse(id: interaction.id,
+                                                           token: interaction.token,
                                                            payload: .modal(modal))
-            case .failure(let failure):
-                _ = try await sendMessage(.init(content: "OOPSIE :( \(failure.localizedDescription)"))
-            default:
-                break
-            }
-        } catch {
-            _ = try await sendMessage(.init(content: "OOPSIE :( \(error.localizedDescription)"))
+            .guardSuccess()
+        case .failure(let failure):
+            print(failure)
+            _ = try await sendMessage(.init(content: "OOPSIE :( \(failure)")).guardSuccess()
+        default:
+            break
         }
     }
 }

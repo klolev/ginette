@@ -21,11 +21,11 @@ extension Player {
 }
 
 extension Player.DTO {
-    init(from player: Player) {
+    init(from player: Player, gameID: BingoGame.IDValue) {
         self.id = player.id
         self.discordID = player.discordID
         self.name = player.name
-        self.gameID = try! player.game.requireID()
+        self.gameID = gameID
         self.tileIndices = player.tileIndices
         self.didBingo = player.didBingo
     }

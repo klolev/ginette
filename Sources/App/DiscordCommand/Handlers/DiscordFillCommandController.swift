@@ -31,14 +31,15 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
         
         let controller = BingoGameTileFillController { guildID in
             try await BingoGame.query(on: app.db)
+                .with(\.$players)
                 .filter(\.$discordGuildID == guildID)
                 .first()
-                .flatMap(BingoGame.DTO.init(from:))
+                .flatMap { BingoGame.DTO(from: $0, withChildren: true) }
         }
         
         switch await controller.fill(tileWithIndex: UInt(tileIndex), inGameWithGuildID: guildID.rawValue) {
         case .success((let wins, let gameDTO)):
-            let game = BingoGame()
+            let game = try await BingoGame.find(gameDTO.id, on: app.db)!
             game.update(with: gameDTO)
             try await game.update(on: app.db)
             

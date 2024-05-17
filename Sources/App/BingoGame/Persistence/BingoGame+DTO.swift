@@ -29,13 +29,17 @@ extension BingoGame {
 }
 
 extension BingoGame.DTO {
-    init(from game: BingoGame) {
+    init(from game: BingoGame, withChildren: Bool) {
         self.id = game.id
         self.name = game.name
         self.discordGuildID = game.discordGuildID
         self.tiles = game.tiles
         self.sheetSize = game.sheetSize
         self.filledTileIndices = game.filledTileIndices
-        self.players = game.players.map(Player.DTO.init(from:))
+        if withChildren {
+            self.players = game.players.map { Player.DTO(from: $0, gameID: try! game.requireID()) }
+        } else {
+            self.players = []
+        }
     }
 }

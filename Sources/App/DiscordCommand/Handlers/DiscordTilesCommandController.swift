@@ -37,7 +37,7 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
             try await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == guildID)
                 .first()
-                .flatMap(BingoGame.DTO.init(from:))
+                .flatMap { BingoGame.DTO(from: $0, withChildren: false) }
         }
         
         switch await controller.get(tilesForGameInGuildWithID: guildID) {

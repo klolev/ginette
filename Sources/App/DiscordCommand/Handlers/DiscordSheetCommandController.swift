@@ -21,13 +21,14 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
             return nil
         }
         
-        guard let user = interaction.user,
+        guard let user = interaction.member?.user,
               let guildID = interaction.guild_id?.rawValue else {
             return .failure(.invalidInput)
         }
         
         let gameForGuild = { (id: String) async throws -> BingoGame? in
             try await BingoGame.query(on: app.db)
+                .with(\.$players)
                 .filter(\.$discordGuildID == id)
                 .first()
         }
@@ -37,12 +38,16 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
                 return nil
             }
             
-            return BingoGame.DTO(from: game)
+            return BingoGame.DTO(from: game, withChildren: true)
         }
         
         switch await controller.get(sheetOfPlayerWithID: user.id.rawValue, inGuildWithID: guildID) {
         case .success(let imageData):
-            return .success(.editMessage(.init(content: "data:image/jpeg;base64,\(imageData.base64EncodedString())")))
+            return .success(.editMessage(.init(
+                embeds: [.init(title: "TA FEUILLE",
+                               image: .init(url: .attachment(name: "sheet.png")))],
+                files: [.init(data: ByteBuffer(data: imageData), filename: "sheet.jpeg")]
+            )))
         case .failure(let error):
             return .failure(.sheetError(error))
         }
