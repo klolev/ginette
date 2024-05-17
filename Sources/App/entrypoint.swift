@@ -2,6 +2,7 @@ import Vapor
 import Logging
 import NIOCore
 import NIOPosix
+import DiscordBM
 
 @main
 enum Entrypoint {
@@ -10,6 +11,17 @@ enum Entrypoint {
         try LoggingSystem.bootstrap(from: &env)
         
         let app = try await Application.make(env)
+        let bot = await BotGatewayManager(
+            token: Environment.process.TOKEN!,
+            presence: .init(
+                activities: [.init(name: "Bingo", type: .game)],
+                status: .online,
+                afk: false
+            ),
+            intents: [.guildMessages, .messageContent]
+        )
+        
+        Task { await bot.connect() }
 
         // This attempts to install NIO as the Swift Concurrency global executor.
         // You should not call any async functions before this point.
@@ -23,7 +35,60 @@ enum Entrypoint {
             try? await app.asyncShutdown()
             throw error
         }
+        
+        Task {
+            for await event in await bot.events {
+                EventHandler(event: event, client: bot.client, app: app).handle()
+            }
+        }
+        
         try await app.execute()
         try await app.asyncShutdown()
+    }
+}
+
+struct EventHandler: GatewayEventHandler {
+    let event: Gateway.Event
+    let client: any DiscordClient
+    var handler: any DiscordInteractionRequestHandler {
+        DiscordCommandController(handlers: [DiscordGoCommandController(),
+                                            DiscordJoinCommandController(),
+                                            DiscordTilesCommandController(),
+                                            DiscordFillCommandController(),
+                                            DiscordTrashCommandController()])
+    }
+    let app: Application
+
+    func onInteractionCreate(_ interaction: Interaction) async throws {
+        print(interaction)
+        if interaction.type == .applicationCommand {
+            try await client.createInteractionResponse(
+                id: interaction.id,
+                token: interaction.token,
+                payload: .deferredChannelMessageWithSource()
+            ).guardSuccess()
+        }
+        
+        let sendMessage = { (payload: Payloads.EditWebhookMessage) in
+            try await client.updateOriginalInteractionResponse(token: Environment.process.TOKEN!,
+                                                               payload: payload)
+        }
+        
+        do {
+            switch try await handler.on(interaction: interaction, app: app) {
+            case .success(.editMessage(let payload)):
+                _ = try await sendMessage(payload)
+            case .success(.modal(let modal)):
+                _ = try await client.createInteractionResponse(id: interaction.id,
+                                                           token: Environment.process.TOKEN!,
+                                                           payload: .modal(modal))
+            case .failure(let failure):
+                _ = try await sendMessage(.init(content: "OOPSIE :( \(failure.localizedDescription)"))
+            default:
+                break
+            }
+        } catch {
+            _ = try await sendMessage(.init(content: "OOPSIE :( \(error.localizedDescription)"))
+        }
     }
 }

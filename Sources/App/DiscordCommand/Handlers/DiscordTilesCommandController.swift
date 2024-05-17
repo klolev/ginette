@@ -1,5 +1,5 @@
 import Vapor
-import DiscordKit
+import DiscordBM
 import Fluent
 
 struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
@@ -21,20 +21,20 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
             .joined(separator: "\n")
     }
     
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>? {
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>? {
         guard case .applicationCommand(let data) = interaction.data,
               let subcommand = data.options?.first,
               subcommand.name == DiscordCommandController.SubcommandType.tiles.rawValue else {
             return nil
         }
         
-        guard let guildID = interaction.guildID else {
+        guard let guildID = interaction.guild_id?.rawValue else {
             return .failure(.invalidInput)
         }
         
         let controller = BingoGameTilesController { guildID in
-            try await BingoGame.query(on: request.db)
+            try await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == guildID)
                 .first()
                 .flatMap(BingoGame.DTO.init(from:))
@@ -42,8 +42,7 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
         
         switch await controller.get(tilesForGameInGuildWithID: guildID) {
         case .success(let tiles):
-            return .success(.init(type: .channelMessageWithSource,
-                                  data: .init(content: messageContents(fromTiles: tiles))))
+            return .success(.editMessage(.init(content: messageContents(fromTiles: tiles))))
         case .failure(let error):
             return .failure(.tilesError(error))
         }

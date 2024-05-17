@@ -12,6 +12,7 @@ let package = Package(
         .package(url: "https://github.com/flix477/slingshot.git", from: "0.4.3"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
+        .package(url: "https://github.com/DiscordBM/DiscordBM", from: "1.11.0")
     ],
     targets: [
         .target(name: "BingoSheetPrintService"),
@@ -28,7 +29,8 @@ let package = Package(
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .target(name: "DiscordKit"),
                 .target(name: "BingoSheetPrintService"),
-                .target(name: "BingoSheetSwiftUIPrintService")
+                .target(name: "BingoSheetSwiftUIPrintService"),
+                .product(name: "DiscordBM", package: "DiscordBM")
             ],
             swiftSettings: swiftSettings
         ),

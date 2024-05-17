@@ -1,4 +1,4 @@
-import DiscordKit
+import DiscordBM
 import Vapor
 
 protocol AsDiscordInteractionHandlerError: Error {
@@ -16,16 +16,21 @@ enum DiscordInteractionHandlerError: AsDiscordInteractionHandlerError {
     var asDiscordInteractionHandlerError: DiscordInteractionHandlerError { self }
 }
 
+enum DiscordInteractionResponse {
+    case editMessage(Payloads.EditWebhookMessage)
+    case modal(Payloads.InteractionResponse.Modal)
+}
+
 protocol DiscordInteractionRequestHandler {
     associatedtype HandlingError: AsDiscordInteractionHandlerError
     
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>?
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>?
 }
 
 extension DiscordInteractionRequestHandler {
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, DiscordInteractionHandlerError>? {
-        try await on(interaction: interaction, request: request)?.mapError(\.asDiscordInteractionHandlerError)
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, DiscordInteractionHandlerError>? {
+        try await on(interaction: interaction, app: app)?.mapError(\.asDiscordInteractionHandlerError)
     }
 }

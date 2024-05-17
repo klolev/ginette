@@ -1,4 +1,4 @@
-import DiscordKit
+import DiscordBM
 import Vapor
 
 struct DiscordCommandController {
@@ -16,10 +16,10 @@ struct DiscordCommandController {
 extension DiscordCommandController: DiscordInteractionRequestHandler {
     typealias HandlingError = DiscordInteractionHandlerError
     
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>? {
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>? {
         for handler in handlers {
-            if let result = try await handler.on(interaction: interaction, request: request) {
+            if let result = try await handler.on(interaction: interaction, app: app) {
                 return result
             }
         }

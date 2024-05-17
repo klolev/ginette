@@ -1,4 +1,4 @@
-import DiscordKit
+import DiscordBM
 import Vapor
 import Fluent
 import BingoSheetSwiftUIPrintService
@@ -13,8 +13,8 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
         }
     }
     
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>? {
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>? {
         guard case .applicationCommand(let data) = interaction.data,
               let subcommand = data.options?.first,
               subcommand.name == DiscordCommandController.SubcommandType.sheet.rawValue else {
@@ -22,12 +22,12 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
         }
         
         guard let user = interaction.user,
-              let guildID = interaction.guildID else {
+              let guildID = interaction.guild_id?.rawValue else {
             return .failure(.invalidInput)
         }
         
         let gameForGuild = { (id: String) async throws -> BingoGame? in
-            try await BingoGame.query(on: request.db)
+            try await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == id)
                 .first()
         }
@@ -40,10 +40,9 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
             return BingoGame.DTO(from: game)
         }
         
-        switch await controller.get(sheetOfPlayerWithID: user.id, inGuildWithID: guildID) {
+        switch await controller.get(sheetOfPlayerWithID: user.id.rawValue, inGuildWithID: guildID) {
         case .success(let imageData):
-            return .success(.init(type: .channelMessageWithSource,
-                                  data: .init(content: "data:image/jpeg;base64,\(imageData.base64EncodedString())")))
+            return .success(.editMessage(.init(content: "data:image/jpeg;base64,\(imageData.base64EncodedString())")))
         case .failure(let error):
             return .failure(.sheetError(error))
         }

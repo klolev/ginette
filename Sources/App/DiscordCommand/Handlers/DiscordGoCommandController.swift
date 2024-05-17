@@ -1,4 +1,4 @@
-import DiscordKit
+import DiscordBM
 import Vapor
 import Fluent
 
@@ -22,34 +22,26 @@ struct DiscordGoCommandController {
         let sheetSize: UInt
     }
     
-    private var creationRequest: DiscordInteraction.Response {
-        .init(
-            type: .modal,
-            data: .init(components: [
-                .textInput(.init(customID: Field.name.rawValue, style: .short, label: "Nom de la partie")),
-                .textInput(.init(customID: Field.tiles.rawValue, style: .paragraph, label: "Cases (une par ligne)")),
-                .textInput(.init(customID: Field.size.rawValue, style: .short, label: "Taille des feuilles (impair)"))
-            ])
-        )
-    }
-    
-    private func get(fieldValueForKey key: String,
-                     in data: DiscordInteraction.Request.InteractionData.ModalData.Component) -> String? {
-        switch data {
-        case .actionRow(let array):
-            array.lazy.compactMap { get(fieldValueForKey: key, in: $0) }.first
-        case .textInput(let textInputValue):
-            textInputValue.customID == key ? textInputValue.value : nil
-        }
+    private var creationRequest: Payloads.InteractionResponse.Modal {
+        .init(custom_id: "go",
+              title: "LETS GO BINGOOO",
+              textInputs: [
+                .init(custom_id: Field.name.rawValue, style: .short, label: "Nom de la partie"),
+                .init(custom_id: Field.tiles.rawValue, style: .paragraph, label: "Cases (une par ligne)"),
+                .init(custom_id: Field.size.rawValue, style: .short, label: "Taille des feuilles (impair)")
+              ])
     }
     
     private func parse(
-        receivedModalInput data: DiscordInteraction.Request.InteractionData.ModalData
+        receivedModalInput data: Interaction.ModalSubmit
     ) -> Result<ParsedInput, HandlingError> {
         let fieldValue = { (fieldName: String) -> String? in
-            get(fieldValueForKey: fieldName, in: .actionRow(data.components))
+            try? data.components
+                .requireComponent(customId: fieldName)
+                .requireTextInput()
+                .value
         }
-        
+
         guard let name = fieldValue(Field.name.rawValue),
               let tiles = fieldValue(Field.tiles.rawValue)?.split(separator: "\n").map({ String($0) }),
               let sheetSize = fieldValue(Field.size.rawValue).flatMap(UInt.init) else {
@@ -59,16 +51,16 @@ struct DiscordGoCommandController {
         return .success(.init(name: name, tiles: tiles, sheetSize: sheetSize))
     }
     
-    private func on(modalDataReceived modalData: DiscordInteraction.Request.InteractionData.ModalData,
+    private func on(modalDataReceived modalData: Interaction.ModalSubmit,
                     guildID: String?,
-                    request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError> {
+                    app: Application) async throws -> Result<Payloads.EditWebhookMessage?, HandlingError> {
         guard let parsedInput = parse(receivedModalInput: modalData).success,
               let guildID else {
             return .failure(.invalidInput)
         }
         
         let creationController = BingoGameCreationController {
-            try await BingoGame.query(on: request.db)
+            try await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == guildID)
                 .count() > 0
         }
@@ -82,9 +74,8 @@ struct DiscordGoCommandController {
         case .success(let gameDTO):
             let game = BingoGame()
             game.update(with: gameDTO)
-            try await game.update(on: request.db)
-            return .success(.init(type: .channelMessageWithSource,
-                                  data: .init(content: "OKIDOU! C'EST PARTI MA CHOUETTE! 💃")))
+            try await game.update(on: app.db)
+            return .success(.init(content: "OKIDOU! C'EST PARTI MA CHOUETTE! 💃"))
         case .failure(let error):
             return .failure(.creationError(error))
         }
@@ -92,8 +83,8 @@ struct DiscordGoCommandController {
 }
 
 extension DiscordGoCommandController: DiscordInteractionRequestHandler {
-    func on(interaction: DiscordInteraction.Request, 
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>? {
+    func on(interaction: Interaction, 
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>? {
         switch interaction.data {
         case .applicationCommand(let data):
             guard let subcommand = data.options?.first,
@@ -101,10 +92,11 @@ extension DiscordGoCommandController: DiscordInteractionRequestHandler {
                 return nil
             }
             
-            return .success(creationRequest)
+            return .success(.modal(creationRequest))
             
         case .modalSubmit(let data):
-            return try await on(modalDataReceived: data, guildID: interaction.guildID, request: request)
+            return try await on(modalDataReceived: data, guildID: interaction.guild_id?.rawValue, app: app)
+                .map { $0.map(DiscordInteractionResponse.editMessage) }
         default:
             return nil
         }

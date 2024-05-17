@@ -1,4 +1,4 @@
-import DiscordKit
+import DiscordBM
 import Vapor
 import Fluent
 
@@ -12,8 +12,8 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
         }
     }
     
-    func on(interaction: DiscordInteraction.Request,
-            request: Request) async throws -> Result<DiscordInteraction.Response?, HandlingError>? {
+    func on(interaction: Interaction,
+            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>? {
         guard case .applicationCommand(let data) = interaction.data,
               let subcommand = data.options?.first,
               subcommand.name == DiscordCommandController.SubcommandType.join.rawValue else {
@@ -21,12 +21,12 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
         }
         
         guard let user = interaction.user,
-              let guildID = interaction.guildID else {
+              let guildID = interaction.guild_id?.rawValue else {
             return .failure(.invalidInput)
         }
         
         let gameForGuild = { (id: String) async throws -> BingoGame? in
-            try await BingoGame.query(on: request.db)
+            try await BingoGame.query(on: app.db)
                 .filter(\.$discordGuildID == id)
                 .first()
         }
@@ -46,8 +46,7 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
         
         switch result {
         case .success:
-            return .success(.init(type: .channelMessageWithSource,
-                                  data: .init(content: "BIENVENUE DANS LA PARTIE MA CHOUETTE!! ☺️")))
+            return .success(.editMessage(.init(content: "BIENVENUE DANS LA PARTIE MA CHOUETTE!! ☺️")))
         case .failure(let error):
             return .failure(.joinError(error))
         }
