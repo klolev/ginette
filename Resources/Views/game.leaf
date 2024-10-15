@@ -1,0 +1,4 @@
+<h1>#(gameName)</h1>
+#for(sheet in sheets):
+    <img width=200 height=200 src="data:image/jpeg;base64,#(sheet)" />
+#endfor

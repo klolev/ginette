@@ -44,8 +44,6 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
         switch await controller.get(sheetOfPlayerWithID: user.id.rawValue, inGuildWithID: guildID) {
         case .success(let imageData):
             return .success(.editMessage(.init(
-                embeds: [.init(title: "TA FEUILLE",
-                               image: .init(url: .attachment(name: "sheet.png")))],
                 files: [.init(data: ByteBuffer(data: imageData), filename: "sheet.jpeg")]
             )))
         case .failure(let error):

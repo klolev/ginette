@@ -1,6 +1,7 @@
 import Vapor
 import Fluent
 import DiscordBM
+import BingoSheetSwiftUIPrintService
 
 struct DiscordFillCommandController: DiscordInteractionRequestHandler {
     enum HandlingError: AsDiscordInteractionHandlerError {
@@ -13,7 +14,7 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
     }
     
     private func message(forWins wins: Set<BingoGameTileFillController.Win>.NonEmpty) -> String {
-        "*BINGOOOOOOOOO!!!!!!!!!💃✨✨🥳👵💃* " + wins.map { "@\($0.player.name)" }.joined(separator: ", ") + " GAGNENT!!"
+        "*BINGOOOOOOOOO!!!!!!!!!💃✨✨🥳👵💃* " + wins.map { "<@\($0.player.discordID)>" }.joined(separator: ", ") + " GAGNENT!!"
     }
     
     func on(interaction: Interaction,
@@ -29,24 +30,40 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
             return .failure(.invalidInput)
         }
         
-        let controller = BingoGameTileFillController { guildID in
+        let controller = BingoGameTileFillController(getCurrentGameForGuild: { guildID in
             try await BingoGame.query(on: app.db)
                 .with(\.$players)
                 .filter(\.$discordGuildID == guildID)
                 .first()
                 .flatMap { BingoGame.DTO(from: $0, withChildren: true) }
-        }
+        }, printService: BingoSheetSwiftUIPrintService())
         
         switch await controller.fill(tileWithIndex: UInt(tileIndex), inGameWithGuildID: guildID.rawValue) {
-        case .success((let wins, let gameDTO)):
-            let game = try await BingoGame.find(gameDTO.id, on: app.db)!
-            game.update(with: gameDTO)
+        case .success(let result):
+            let game = try await BingoGame.find(result.game.id, on: app.db)!
+            game.update(with: result.game)
             try await game.update(on: app.db)
             
-            if let wins = Set<BingoGameTileFillController.Win>.NonEmpty(container: wins) {
-                return .success(.editMessage(.init(content: message(forWins: wins))))
+            if let wins = Set<BingoGameTileFillController.Win>.NonEmpty(container: result.wins) {
+                let path = Bundle.module.path(forResource: "bingo.gif", ofType: nil)!
+                
+                return .success(.editMessage(.init(
+                    content: message(forWins: wins),
+                    files: [
+                        .init(data: try! await .init(contentsOf: .init(path), maximumSizeAllowed: .megabytes(8)),
+                              filename: "bingo.gif")
+                    ]
+                )))
             } else {
-                return .success(.editMessage(.init(content: "OKIDOU C'EST REMPLI MA BELLE!! ✨")))
+                return .success(
+                    .editMessage(.init(
+                        content: "OKIDOU! '\(result.filledTile)' EST REMPLI MA BELLE!! ✨ "
+                            + result.affectedPlayers.keys.map { "<@\($0.discordID)>" }.joined(separator: ", "),
+                        files: result.affectedPlayers.values.map { imageData in
+                            .init(data: ByteBuffer(data: imageData), filename: "sheet.jpeg")
+                        }
+                    ))
+                )
             }
         case .failure(let error):
             return .failure(.fillError(error))

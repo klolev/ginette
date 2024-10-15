@@ -25,17 +25,8 @@ struct BingoGameSheetController {
             return .failure(.playerNotInGame)
         }
         
-        let playerTiles = player.tileIndices.map {
-            BingoSheetPrintInput.Tile(id: String($0),
-                                      value: game.tiles[Int($0)],
-                                      isFilled: game.filledTileIndices.contains($0))
-        }
-        
         do {
-            let imageData = try await printer.print(sheet: .init(gameName: game.name,
-                                                                 playerName: player.name,
-                                                                 size: game.sheetSize,
-                                                                 tiles: playerTiles))
+            let imageData = try await printer.print(sheet: .init(fromPlayer: player, inGame: game))
             return .success(imageData)
         } catch {
             return .failure(.printerError(error))

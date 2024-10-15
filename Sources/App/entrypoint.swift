@@ -51,11 +51,13 @@ struct EventHandler: GatewayEventHandler {
     let event: Gateway.Event
     let client: any DiscordClient
     var handler: any DiscordInteractionRequestHandler {
-        DiscordCommandController(handlers: [DiscordGoCommandController(),
+        DiscordCommandController(handlers: [DiscordHelloCommandController(),
+                                            DiscordGoCommandController(),
                                             DiscordJoinCommandController(),
                                             DiscordTilesCommandController(),
                                             DiscordFillCommandController(),
                                             DiscordSheetCommandController(),
+                                            DiscordMemeCommandController(),
                                             DiscordTrashCommandController()])
     }
     let app: Application
@@ -81,6 +83,8 @@ struct EventHandler: GatewayEventHandler {
                                                            token: interaction.token,
                                                            payload: .modal(modal))
             .guardSuccess()
+        case .success(.none):
+            _ = try await sendMessage(.init(content: "HEIN?")).guardSuccess()
         case .failure(let failure):
             print(failure)
             _ = try await sendMessage(.init(content: "OOPSIE :( \(failure)")).guardSuccess()

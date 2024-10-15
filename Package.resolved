@@ -1,5 +1,5 @@
 {
-  "originHash" : "e5a537e9eef785e6d9b5ef4ed5836b3eb77038f8b8b69be71d31f6cd25fb4042",
+  "originHash" : "f0e443bca08de769d32849eabf25163a96963ed2869683f9ea9885e95959b646",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -65,6 +65,24 @@
       }
     },
     {
+      "identity" : "leaf",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/leaf.git",
+      "state" : {
+        "revision" : "0be8765af9991823c854d97faa4a97db1cfa2643",
+        "version" : "4.3.0"
+      }
+    },
+    {
+      "identity" : "leaf-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/vapor/leaf-kit.git",
+      "state" : {
+        "revision" : "547e48cc5f8d98380dd8a7226ce630d3aa3b2245",
+        "version" : "1.10.6"
+      }
+    },
+    {
       "identity" : "multipart-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/multipart-kit.git",
@@ -87,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/flix477/slingshot.git",
       "state" : {
-        "revision" : "9baefde9c0f1437e7c477c0c5212827f465f262e",
-        "version" : "0.4.3"
+        "revision" : "5b35e628fbf10b3daa1d87c33b2420ae69333ef7",
+        "version" : "0.4.14"
       }
     },
     {

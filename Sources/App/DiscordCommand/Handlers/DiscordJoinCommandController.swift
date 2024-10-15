@@ -1,6 +1,7 @@
 import DiscordBM
 import Vapor
 import Fluent
+import BingoSheetSwiftUIPrintService
 
 struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
     enum HandlingError: AsDiscordInteractionHandlerError {
@@ -32,13 +33,13 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
                 .first()
         }
         
-        let controller = BingoGameJoinController { guildID in
+        let controller = BingoGameJoinController(getCurrentGameForGuildID: { guildID in
             guard let game = try? await gameForGuild(guildID) else {
                 return nil
             }
             
             return BingoGame.DTO(from: game, withChildren: true)
-        }
+        }, printService: BingoSheetSwiftUIPrintService())
         
         let result = await controller
             .join(playerNamed: "\(user.username)#\(user.discriminator)",
@@ -46,11 +47,14 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
                   inGuildID: guildID)
         
         switch result {
-        case .success(let playerDTO):
+        case .success(let result):
             let player = Player()
-            player.update(from: playerDTO)
+            player.update(from: result.player)
             try await player.create(on: app.db)
-            return .success(.editMessage(.init(content: "BIENVENUE DANS LA PARTIE MA CHOUETTE!! ☺️")))
+            return .success(.editMessage(.init(
+                content: "BIENVENUE DANS LA PARTIE MA CHOUETTE!! ☺️ <@\(player.discordID)>",
+                files: [.init(data: .init(data: result.sheet), filename: "sheet.png")]
+            )))
         case .failure(let error):
             return .failure(.joinError(error))
         }

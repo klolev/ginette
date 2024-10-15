@@ -1,18 +1,30 @@
+import Foundation
+import BingoSheetPrintService
+
 struct BingoGameJoinController {
     enum JoinError: Error {
         case alreadyInGame
         case noGameInProgress
+        case printError(Error)
     }
     
     private let getCurrentGameForGuildID: (String) async throws -> BingoGame.DTO?
-    
-    init(getCurrentGameForGuildID: @escaping (String) async throws -> BingoGame.DTO?) {
+    private let printService: BingoSheetPrintService
+
+    init(getCurrentGameForGuildID: @escaping (String) async throws -> BingoGame.DTO?,
+         printService: BingoSheetPrintService) {
         self.getCurrentGameForGuildID = getCurrentGameForGuildID
+        self.printService = printService
+    }
+    
+    struct JoinResult {
+        let player: Player.DTO
+        let sheet: Data
     }
     
     func join(playerNamed name: String,
               withDiscordId discordId: String,
-              inGuildID guildID: String) async -> Result<Player.DTO, JoinError> {
+              inGuildID guildID: String) async -> Result<JoinResult, JoinError> {
         guard let game = try? await getCurrentGameForGuildID(guildID) else {
             return .failure(.noGameInProgress)
         }
@@ -29,6 +41,11 @@ struct BingoGameJoinController {
                                 gameID: gameID,
                                 tileIndices: tileIndices)
         
-        return .success(player)
+        do {
+            let sheet = try await printService.print(sheet: .init(fromPlayer: player, inGame: game))
+            return .success(.init(player: player, sheet: sheet))
+        } catch {
+            return .failure(.printError(error))
+        }
     }
 }

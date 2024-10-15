@@ -1,4 +1,12 @@
+import Foundation
 import Slingshot
+import BingoSheetPrintService
+
+extension Player.DTO: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
 
 public struct BingoGameTileFillController {
     struct Win: Equatable, Hashable {
@@ -22,6 +30,13 @@ public struct BingoGameTileFillController {
         }
     }
     
+    struct FillResult {
+        let wins: Set<Win>
+        let game: BingoGame.DTO
+        let filledTile: String
+        let affectedPlayers: [Player.DTO: Data]
+    }
+    
     enum WinCondition: Equatable, Hashable {
         case diagonal
         case backwardsDiagonal
@@ -33,12 +48,16 @@ public struct BingoGameTileFillController {
         case invalidIndex
         case alreadyFilled
         case noGameInProgress
+        case printError(Error)
     }
     
     private let getCurrentGameForGuild: (String) async throws -> BingoGame.DTO?
+    private let printService: BingoSheetPrintService
     
-    init(getCurrentGameForGuild: @escaping (String) async throws -> BingoGame.DTO?) {
+    init(getCurrentGameForGuild: @escaping (String) async throws -> BingoGame.DTO?,
+         printService: BingoSheetPrintService) {
         self.getCurrentGameForGuild = getCurrentGameForGuild
+        self.printService = printService
     }
     
     private func check(sheetIndices: Set<UInt>,
@@ -126,7 +145,7 @@ public struct BingoGameTileFillController {
     }
     
     func fill(tileWithIndex index: UInt,
-              inGameWithGuildID guildID: String) async -> Result<(wins: Set<Win>, game: BingoGame.DTO), FillError> {
+              inGameWithGuildID guildID: String) async -> Result<FillResult, FillError> {
         guard var game = try? await getCurrentGameForGuild(guildID) else {
             return .failure(.noGameInProgress)
         }
@@ -141,6 +160,20 @@ public struct BingoGameTileFillController {
         
         game.filledTileIndices.insert(index)
         
-        return .success((wins: get(winsIn: game, withNewlyFilledTile: index), game: game))
+        let affectedPlayers = game.players.filter { $0.tileIndices.contains(index) }
+        var affectedPlayersSheets = [Player.DTO: Data]()
+        for player in affectedPlayers {
+            do {
+                let data = try await printService.print(sheet: .init(fromPlayer: player, inGame: game))
+                affectedPlayersSheets[player] = data
+            } catch {
+                return .failure(.printError(error))
+            }
+        }
+        
+        return .success(.init(wins: get(winsIn: game, withNewlyFilledTile: index),
+                              game: game,
+                              filledTile: game.tiles[Int(index)],
+                              affectedPlayers: affectedPlayersSheets))
     }
 }

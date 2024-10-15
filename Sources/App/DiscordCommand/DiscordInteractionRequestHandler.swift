@@ -12,6 +12,9 @@ enum DiscordInteractionHandlerError: AsDiscordInteractionHandlerError {
     case fillError(DiscordFillCommandController.HandlingError)
     case trashError(DiscordTrashCommandController.HandlingError)
     case sheetError(DiscordSheetCommandController.HandlingError)
+    case memeError(DiscordMemeCommandController.HandlingError)
+//    case messageError(DiscordMessageCommandController.HandlingError)
+    case helloError
 
     var asDiscordInteractionHandlerError: DiscordInteractionHandlerError { self }
 }

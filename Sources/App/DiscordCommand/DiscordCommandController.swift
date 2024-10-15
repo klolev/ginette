@@ -3,7 +3,7 @@ import Vapor
 
 struct DiscordCommandController {
     enum SubcommandType: String {
-        case go, join, fill, sheet, tiles, trash
+        case go, join, fill, sheet, facebook, tiles, trash, hello
     }
     
     private let handlers: [any DiscordInteractionRequestHandler]
