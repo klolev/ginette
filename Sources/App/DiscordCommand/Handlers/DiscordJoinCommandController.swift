@@ -29,7 +29,7 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
         }, printService: BingoSheetBrowserlessPrintService())
 
         let result = await controller
-            .join(playerNamed: "\(user.username)#\(user.discriminator)",
+            .join(playerNamed: interaction.member?.nick ?? user.global_name ?? user.username,
                   withDiscordId: user.id.rawValue,
                   inGuildID: guildID)
 
