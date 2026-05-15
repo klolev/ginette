@@ -31,7 +31,7 @@ struct DiscordCommandCreationController {
                 .init(type: .subCommand,
                       name: Subcommand.fill.rawValue,
                       description: "Remplis une case dans la partie en cours",
-                      options: [.init(type: .integer, name: "tile_number", description: "Numéro de la case", min_value: .int(0))]),
+                      options: [.init(type: .string, name: "tile", description: "Nom ou numéro de la case", autocomplete: true)]),
                 .init(type: .subCommand,
                       name: Subcommand.trash.rawValue,
                       description: "Envoie la partie en cours aux poubelles")

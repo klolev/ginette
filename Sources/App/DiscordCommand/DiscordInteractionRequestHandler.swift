@@ -20,6 +20,7 @@ enum DiscordInteractionHandlerError: AsDiscordInteractionHandlerError {
 enum DiscordInteractionResponse {
     case editMessage(Payloads.EditWebhookMessage)
     case modal(Payloads.InteractionResponse.Modal)
+    case autocomplete(Payloads.InteractionResponse.Autocomplete)
 }
 
 protocol DiscordInteractionRequestHandler {

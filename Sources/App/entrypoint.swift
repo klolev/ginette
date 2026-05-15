@@ -44,7 +44,19 @@ struct EventHandler: GatewayEventHandler {
     let store: GameStore
 
     func onInteractionCreate(_ interaction: Interaction) async throws {
-        if (try? interaction.data?.requireApplicationCommand())?.options?.first?.name != DiscordCommandController.SubcommandType.go.rawValue {
+        if interaction.type == .applicationCommandAutocomplete {
+            if case .success(.autocomplete(let autocomplete)) = try await handler.on(interaction: interaction, store: store) {
+                _ = try await client.createInteractionResponse(
+                    id: interaction.id,
+                    token: interaction.token,
+                    payload: .autocompleteResult(autocomplete)
+                ).guardSuccess()
+            }
+            return
+        }
+
+        let subcommandName = (try? interaction.data?.requireApplicationCommand())?.options?.first?.name
+        if subcommandName != DiscordCommandController.SubcommandType.go.rawValue {
             try await client.createInteractionResponse(
                 id: interaction.id,
                 token: interaction.token,
