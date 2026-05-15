@@ -31,7 +31,8 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
                 "type": "jpeg",
                 "quality": 90
             ],
-            "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1]
+            "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1],
+            "gotoOptions": ["waitUntil": "networkidle0"]
         ]
 
         var request = URLRequest(url: screenshotURL)
