@@ -1,5 +1,5 @@
 {
-  "originHash" : "f0e443bca08de769d32849eabf25163a96963ed2869683f9ea9885e95959b646",
+  "originHash" : "7f7ca3d1db281447fc6459b4cbe931ac36ef83405205c9948edfa951fd78691a",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -103,10 +103,10 @@
     {
       "identity" : "slingshot",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/flix477/slingshot.git",
+      "location" : "https://github.com/klolev/Slingshot.git",
       "state" : {
-        "revision" : "5b35e628fbf10b3daa1d87c33b2420ae69333ef7",
-        "version" : "0.4.14"
+        "revision" : "59c148d7b346cf5f5ab9503acde81f721f374603",
+        "version" : "0.4.20"
       }
     },
     {
