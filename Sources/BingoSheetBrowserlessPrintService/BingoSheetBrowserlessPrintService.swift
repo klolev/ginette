@@ -35,9 +35,9 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
             "gotoOptions": ["waitUntil": "networkidle0"]
         ]
 
-        print("=== HTML ===")
-        print(html)
-        print("=== END HTML ===")
+        Swift.print("=== HTML ===")
+        Swift.print(html)
+        Swift.print("=== END HTML ===")
         var request = URLRequest(url: screenshotURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
