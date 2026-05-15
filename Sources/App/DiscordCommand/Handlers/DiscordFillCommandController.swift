@@ -33,7 +33,10 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
             .filter { !game.filledTileIndices.contains(UInt($0.offset)) }
             .filter { typed.isEmpty || $0.element.lowercased().contains(typed.lowercased()) || "\($0.offset)" == typed }
             .prefix(5)
-            .map { .init(name: "\($0.offset): \($0.element)", value: .string("\($0.offset)")) }
+            .map {
+                let name = "\($0.offset): \($0.element)"
+                return .init(name: String(name.prefix(100)), value: .string("\($0.offset)"))
+            }
 
         return .success(.autocomplete(.init(choices: choices)))
     }
