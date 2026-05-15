@@ -32,13 +32,9 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
                 "quality": 90
             ],
             "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1],
-            "gotoOptions": ["waitUntil": "networkidle0"],
-            "waitForSelector": ["selector": "#card[data-ready]", "timeout": 5000]
+            "gotoOptions": ["waitUntil": "domcontentloaded"]
         ]
 
-        Swift.print("=== HTML ===")
-        Swift.print(html)
-        Swift.print("=== END HTML ===")
         var request = URLRequest(url: screenshotURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -101,12 +97,9 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <html>
         <head>
         <meta charset='utf-8'>
-        <link rel='preconnect' href='https://fonts.googleapis.com'>
-        <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
-        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap' rel='stylesheet'>
         <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
         </head>
-        <body style='background:transparent;font-family:Inter,sans-serif;'>
+        <body style='background:transparent;font-family:Arial,Helvetica,sans-serif;'>
         <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
           <div style='background:hsl(\((hue + 340) % 360),82%,65%);display:inline-flex;flex-direction:column;'>
             <div style='display:flex;align-items:center;padding:0 24px;height:90px;flex-shrink:0;'>
@@ -124,12 +117,9 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js"></script>
         <script>
         twemoji.parse(document.body,{folder:'svg',ext:'.svg'});
-        document.fonts.ready.then(()=>{
-          document.querySelectorAll('.tile-text').forEach(el=>{
-            const p=el.parentElement;let s=24;
-            while(s>7&&(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth)){s--;el.style.fontSize=s+'px';}
-          });
-          document.getElementById('card').dataset.ready='1';
+        document.querySelectorAll('.tile-text').forEach(el=>{
+          const p=el.parentElement;let s=24;
+          while(s>7&&(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth)){s--;el.style.fontSize=s+'px';}
         });
         </script>
         </body>
