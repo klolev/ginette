@@ -11,9 +11,11 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
     }
 
     private func messageContents(fromTiles tiles: [BingoGameTilesController.Tile]) -> String {
-        tiles.enumerated()
+        let maxTileLength = max(10, 1900 / max(tiles.count, 1))
+        return tiles.enumerated()
             .map { (index, tile) in
-                let value = "\(index): \(tile.value)"
+                let truncated = tile.value.count > maxTileLength ? String(tile.value.prefix(maxTileLength)) + "…" : tile.value
+                let value = "\(index): \(truncated)"
                 return tile.filled ? "~~\(value)~~" : value
             }
             .joined(separator: "\n")
