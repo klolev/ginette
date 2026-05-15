@@ -6,7 +6,7 @@ let package = Package(
     platforms: [.macOS(.v13)],
     dependencies: [
         .package(url: "https://github.com/klolev/Slingshot.git", from: "0.4.20"),
-        .package(url: "https://github.com/DiscordBM/DiscordBM", from: "1.11.0"),
+        .package(url: "https://github.com/DiscordBM/DiscordBM", "1.11.0"..<"1.16.0"),
     ],
     targets: [
         .target(name: "BingoSheetPrintService"),
