@@ -26,11 +26,12 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
 
         let body: [String: Any] = [
             "html": html,
+            "selector": "#card",
             "options": [
                 "type": "jpeg",
                 "quality": 90
             ],
-            "viewport": ["width": width, "height": height, "deviceScaleFactor": 1]
+            "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1]
         ]
 
         var request = URLRequest(url: screenshotURL)
@@ -83,27 +84,30 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
                 gridHTML += """
                 <div style='width:\(tileSize)px;height:\(tileSize)px;border:1px solid rgba(0,0,0,0.2);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:\(bg);flex-shrink:0;'>
                   <div style='position:absolute;top:0;left:0;font-size:12px;font-weight:bold;font-family:monospace;background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.1);padding:2px 4px;'>\(escapeHTML(tile.id))</div>
-                  <div class='tile-text' style='font-size:24px;font-weight:bold;text-align:center;padding:0 8px;word-break:break-word;color:black;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;'>\(escapeHTML(tile.value))</div>
+                  <div class='tile-text' style='font-size:24px;font-weight:bold;text-align:center;padding:0 8px;word-break:break-word;color:black;'>\(escapeHTML(tile.value))</div>
                 </div>
                 """
             }
             gridHTML += "</div>"
         }
 
+        let font = "Inter"
+
         return """
         <!DOCTYPE html>
         <html>
         <head>
         <meta charset='utf-8'>
+        <link href='https://fonts.googleapis.com/css2?family=\(font):wght@300;700&display=swap' rel='stylesheet'>
         <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
         </head>
-        <body style='background:transparent;width:\(width)px;height:\(height)px;overflow:hidden;'>
-        <div style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
+        <body style='background:transparent;font-family:\(font),sans-serif;'>
+        <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
           <div style='background:hsl(\((hue + 340) % 360),82%,65%);display:inline-flex;flex-direction:column;'>
             <div style='display:flex;align-items:center;padding:0 24px;height:90px;flex-shrink:0;'>
               <div style='flex:1;min-width:0;'>
-                <div style='color:white;font-size:32px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;'>\(escapeHTML(sheet.playerName))</div>
-                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;'>\(escapeHTML(sheet.gameName))</div>
+                <div style='color:white;font-size:32px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:\(font),sans-serif;'>\(escapeHTML(sheet.playerName))</div>
+                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:\(font),sans-serif;'>\(escapeHTML(sheet.gameName))</div>
               </div>
               <div style='font-size:36px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.2);border-radius:50%;flex-shrink:0;margin-left:12px;'>&#x1F475;</div>
             </div>
