@@ -92,23 +92,24 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
             gridHTML += "</div>"
         }
 
-        let font = "Inter"
-
         return """
         <!DOCTYPE html>
         <html>
         <head>
         <meta charset='utf-8'>
-        <link href='https://fonts.googleapis.com/css2?family=\(font):wght@300;700&display=swap' rel='stylesheet'>
-        <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0;}
+        .emoji{padding:4px;}
+        </style>
         </head>
-        <body style='background:transparent;font-family:\(font),sans-serif;'>
+        <body style='background:transparent;font-family:Inter,sans-serif;'>
         <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
           <div style='background:hsl(\((hue + 340) % 360),82%,65%);display:inline-flex;flex-direction:column;'>
             <div style='display:flex;align-items:center;padding:0 24px;height:90px;flex-shrink:0;'>
               <div style='flex:1;min-width:0;'>
-                <div style='color:white;font-size:32px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:\(font),sans-serif;'>\(escapeHTML(sheet.playerName))</div>
-                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:\(font),sans-serif;'>\(escapeHTML(sheet.gameName))</div>
+                <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.playerName))</div>
+                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.gameName))</div>
               </div>
               <div style='font-size:36px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.2);border-radius:50%;flex-shrink:0;margin-left:12px;'>&#x1F475;</div>
             </div>
