@@ -162,12 +162,13 @@ public struct BingoGameTileFillController {
         
         let affectedPlayers = game.players.filter { $0.tileIndices.contains(index) }
         let currentGame = game
+        let printer = printService
         let affectedPlayersSheets: [Player.DTO: Data]
         do {
             affectedPlayersSheets = try await withThrowingTaskGroup(of: (Player.DTO, Data).self) { group in
                 for player in affectedPlayers {
                     group.addTask {
-                        let data = try await printService.print(sheet: .init(fromPlayer: player, inGame: currentGame))
+                        let data = try await printer.print(sheet: .init(fromPlayer: player, inGame: currentGame))
                         return (player, data)
                     }
                 }
