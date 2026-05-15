@@ -100,19 +100,17 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
         </head>
         <body style='background:transparent;font-family:Arial,Helvetica,sans-serif;'>
-        <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
-          <div style='background:hsl(\((hue + 340) % 360),82%,65%);display:inline-flex;flex-direction:column;'>
-            <div style='display:flex;align-items:center;padding:0 24px;height:90px;flex-shrink:0;'>
-              <div style='overflow:hidden;'>
-                <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;'>\(escapeHTML(sheet.playerName))</div>
-                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;'>\(escapeHTML(sheet.gameName))</div>
+        <div id='card' style='width:\(width)px;border-radius:15px;overflow:hidden;background:hsl(\((hue + 340) % 360),82%,65%);'>
+            <div style='display:flex;align-items:center;padding:0 24px;height:90px;'>
+              <div style='flex:1;min-width:0;'>
+                <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.playerName))</div>
+                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.gameName))</div>
               </div>
               <div style='font-size:36px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.2);border-radius:50%;flex-shrink:0;margin-left:12px;'>&#x1F475;</div>
             </div>
-            <div style='margin:2px;border:1px solid rgba(0,0,0,0.5);background:white;display:inline-block;'>
+            <div style='margin:2px;border:1px solid rgba(0,0,0,0.5);background:white;'>
               \(gridHTML)
             </div>
-          </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js"></script>
         <script>
