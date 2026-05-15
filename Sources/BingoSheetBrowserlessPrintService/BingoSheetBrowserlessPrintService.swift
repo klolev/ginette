@@ -99,8 +99,8 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
         </head>
         <body style='background:transparent;font-family:Arial,Helvetica,sans-serif;'>
-        <div id='card' style='width:\(width)px;border-radius:15px;overflow:hidden;background:hsl(\((hue + 340) % 360),82%,65%);'>
-            <div style='display:flex;align-items:center;padding:0 24px;height:90px;'>
+        <div id='card' style='width:\(width)px;border-radius:15px;overflow:hidden;background:hsl(\((hue + 340) % 360),82%,65%);text-align:center;'>
+            <div style='display:flex;align-items:center;padding:0 24px;height:90px;text-align:left;'>
               <div style='flex:1;min-width:0;'>
                 <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.playerName))</div>
                 <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>\(escapeHTML(sheet.gameName))</div>
