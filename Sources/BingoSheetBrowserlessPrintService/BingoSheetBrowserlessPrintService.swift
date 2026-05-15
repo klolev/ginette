@@ -19,8 +19,7 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
 
     public func print(sheet: BingoSheetPrintInput) async throws -> Data {
         let tileSize = 100
-        let gridWidth = tileSize * Int(sheet.size) + 6
-        let width = gridWidth + 44
+        let width = tileSize * Int(sheet.size) + 50
         let height = tileSize * Int(sheet.size) + 100
         let html = generateHTML(for: sheet, width: width, height: height)
 
@@ -108,7 +107,7 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
               </div>
               <div style='font-size:36px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.2);border-radius:50%;flex-shrink:0;margin-left:12px;'>&#x1F475;</div>
             </div>
-            <div style='margin:2px;border:1px solid rgba(0,0,0,0.5);background:white;'>
+            <div style='margin:2px;border:1px solid rgba(0,0,0,0.5);background:white;display:inline-block;'>
               \(gridHTML)
             </div>
         </div>
