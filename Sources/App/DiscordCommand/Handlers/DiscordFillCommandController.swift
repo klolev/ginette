@@ -1,5 +1,6 @@
 import Foundation
 import DiscordBM
+import NIOCore
 import BingoSheetBrowserlessPrintService
 
 struct DiscordFillCommandController: DiscordInteractionRequestHandler {
@@ -39,12 +40,12 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
 
             if let wins = Set<BingoGameTileFillController.Win>.NonEmpty(container: result.wins) {
                 let path = Bundle.module.path(forResource: "bingo.gif", ofType: nil)!
+                let gifData = try Data(contentsOf: URL(fileURLWithPath: path))
 
                 return .success(.editMessage(.init(
                     content: message(forWins: wins),
                     files: [
-                        .init(data: try! await .init(contentsOf: .init(path), maximumSizeAllowed: .megabytes(8)),
-                              filename: "bingo.gif")
+                        .init(data: ByteBuffer(data: gifData), filename: "bingo.gif")
                     ]
                 )))
             } else {
