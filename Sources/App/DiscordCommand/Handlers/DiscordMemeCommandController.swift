@@ -17,13 +17,8 @@ struct DiscordMemeCommandController: DiscordInteractionRequestHandler {
             return nil
         }
 
-        let fetcher = RedditMemeFetcher(subreddit: "traaaaaaannnnnnnnnns")
-        guard let url = try? await fetcher.fetchRandomMeme() else {
-            return .failure(.apiError)
-        }
+        let text = grandmaTexts.randomElement()!
 
-        return .success(.editMessage(.init(
-            content: "TIENS MA CHOUPETTE J'AI VU ÇA SUR FACE BOOK !! Ha Ha ☺️ \(url)"
-        )))
+        return .success(.editMessage(.init(content: text)))
     }
 }
