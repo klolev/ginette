@@ -32,7 +32,8 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
                 "quality": 90
             ],
             "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1],
-            "gotoOptions": ["waitUntil": "networkidle0"]
+            "gotoOptions": ["waitUntil": "networkidle0"],
+            "waitForSelector": ["selector": "#card[data-ready]", "timeout": 5000]
         ]
 
         Swift.print("=== HTML ===")
@@ -100,11 +101,10 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <html>
         <head>
         <meta charset='utf-8'>
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        .emoji{padding:4px;}
-        </style>
+        <link rel='preconnect' href='https://fonts.googleapis.com'>
+        <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+        <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap' rel='stylesheet'>
+        <style>*{box-sizing:border-box;margin:0;padding:0;} .emoji{padding:4px;}</style>
         </head>
         <body style='background:transparent;font-family:Inter,sans-serif;'>
         <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
@@ -124,9 +124,12 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js"></script>
         <script>
         twemoji.parse(document.body,{folder:'svg',ext:'.svg'});
-        document.querySelectorAll('.tile-text').forEach(el=>{
-          const p=el.parentElement;let s=24;
-          while(s>7&&(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth)){s--;el.style.fontSize=s+'px';}
+        document.fonts.ready.then(()=>{
+          document.querySelectorAll('.tile-text').forEach(el=>{
+            const p=el.parentElement;let s=24;
+            while(s>7&&(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth)){s--;el.style.fontSize=s+'px';}
+          });
+          document.getElementById('card').dataset.ready='1';
         });
         </script>
         </body>
