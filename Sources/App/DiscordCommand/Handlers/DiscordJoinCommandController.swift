@@ -1,7 +1,7 @@
 import DiscordBM
 import Vapor
 import Fluent
-import BingoSheetSwiftUIPrintService
+import BingoSheetBrowserlessPrintService
 
 struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
     enum HandlingError: AsDiscordInteractionHandlerError {
@@ -39,7 +39,7 @@ struct DiscordJoinCommandController: DiscordInteractionRequestHandler {
             }
             
             return BingoGame.DTO(from: game, withChildren: true)
-        }, printService: BingoSheetSwiftUIPrintService())
+        }, printService: BingoSheetBrowserlessPrintService())
         
         let result = await controller
             .join(playerNamed: "\(user.username)#\(user.discriminator)",

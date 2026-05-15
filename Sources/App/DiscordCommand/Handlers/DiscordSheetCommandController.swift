@@ -1,7 +1,7 @@
 import DiscordBM
 import Vapor
 import Fluent
-import BingoSheetSwiftUIPrintService
+import BingoSheetBrowserlessPrintService
 
 struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
     enum HandlingError: AsDiscordInteractionHandlerError {
@@ -33,7 +33,7 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
                 .first()
         }
         
-        let controller = BingoGameSheetController(printer: BingoSheetSwiftUIPrintService()) { guildID in
+        let controller = BingoGameSheetController(printer: BingoSheetBrowserlessPrintService()) { guildID in
             guard let game = try? await gameForGuild(guildID) else {
                 return nil
             }

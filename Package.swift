@@ -3,9 +3,6 @@ import PackageDescription
 
 let package = Package(
     name: "ginette",
-    platforms: [
-       .macOS(.v13)
-    ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
@@ -17,7 +14,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "BingoSheetPrintService"),
-        .target(name: "BingoSheetSwiftUIPrintService", dependencies: [.target(name: "BingoSheetPrintService")]),
+        .target(name: "BingoSheetBrowserlessPrintService", dependencies: [.target(name: "BingoSheetPrintService")]),
         .executableTarget(
             name: "App",
             dependencies: [
@@ -28,7 +25,7 @@ let package = Package(
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 .target(name: "BingoSheetPrintService"),
-                .target(name: "BingoSheetSwiftUIPrintService"),
+                .target(name: "BingoSheetBrowserlessPrintService"),
                 .product(name: "DiscordBM", package: "DiscordBM"),
                 .product(name: "Leaf", package: "leaf")
             ],

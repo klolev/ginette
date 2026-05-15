@@ -1,5 +1,5 @@
 import Foundation
-import BingoSheetSwiftUIPrintService
+import BingoSheetBrowserlessPrintService
 import Vapor
 import Fluent
 import Leaf
@@ -16,7 +16,7 @@ func routes(_ app: Application) throws {
             throw Abort(.notFound)
         }
         
-        let controller = BingoGameSheetController(printer: BingoSheetSwiftUIPrintService(),
+        let controller = BingoGameSheetController(printer: BingoSheetBrowserlessPrintService(),
                                                   getCurrentGameForGuildID: { _ in .init(from: game, withChildren: true) })
         var sheets: [String] = []
         for player in game.players {

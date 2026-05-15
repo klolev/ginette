@@ -1,7 +1,6 @@
 import DiscordBM
 import Vapor
 import Fluent
-import BingoSheetSwiftUIPrintService
 
 struct DiscordHelloCommandController: DiscordInteractionRequestHandler {
     enum HandlingError: AsDiscordInteractionHandlerError {
