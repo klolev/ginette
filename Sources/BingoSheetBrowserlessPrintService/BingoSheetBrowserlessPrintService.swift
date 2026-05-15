@@ -103,9 +103,9 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         <div id='card' style='display:inline-flex;flex-direction:column;border-radius:15px;overflow:hidden;'>
           <div style='background:hsl(\((hue + 340) % 360),82%,65%);display:inline-flex;flex-direction:column;'>
             <div style='display:flex;align-items:center;padding:0 24px;height:90px;flex-shrink:0;'>
-              <div style='flex:1;min-width:0;overflow:hidden;'>
-                <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;'>\(escapeHTML(sheet.playerName))</div>
-                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;'>\(escapeHTML(sheet.gameName))</div>
+              <div style='overflow:hidden;'>
+                <div style='color:white;font-size:32px;font-weight:700;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;'>\(escapeHTML(sheet.playerName))</div>
+                <div style='color:white;font-size:16px;font-weight:300;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;'>\(escapeHTML(sheet.gameName))</div>
               </div>
               <div style='font-size:36px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.2);border-radius:50%;flex-shrink:0;margin-left:12px;'>&#x1F475;</div>
             </div>
