@@ -3,14 +3,10 @@ import PackageDescription
 
 let package = Package(
     name: "ginette",
+    platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         .package(url: "https://github.com/klolev/Slingshot.git", from: "0.4.20"),
-        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
-        .package(url: "https://github.com/DiscordBM/DiscordBM", from: "1.11.0"),
-        .package(url: "https://github.com/vapor/leaf.git", from: "4.0.0")
+        .package(url: "https://github.com/DiscordBM/DiscordBM", from: "1.16.0"),
     ],
     targets: [
         .target(name: "BingoSheetPrintService"),
@@ -19,15 +15,9 @@ let package = Package(
             name: "App",
             dependencies: [
                 .product(name: "Slingshot", package: "Slingshot"),
-                .product(name: "Vapor", package: "vapor"),
-                .product(name: "NIOCore", package: "swift-nio"),
-                .product(name: "NIOPosix", package: "swift-nio"),
-                .product(name: "Fluent", package: "fluent"),
-                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
+                .product(name: "DiscordBM", package: "DiscordBM"),
                 .target(name: "BingoSheetPrintService"),
                 .target(name: "BingoSheetBrowserlessPrintService"),
-                .product(name: "DiscordBM", package: "DiscordBM"),
-                .product(name: "Leaf", package: "leaf")
             ],
             resources: [.copy("Images/bingo.gif")],
             swiftSettings: swiftSettings
@@ -36,7 +26,6 @@ let package = Package(
             name: "AppTests",
             dependencies: [
                 .target(name: "App"),
-                .product(name: "XCTVapor", package: "vapor"),
             ],
             swiftSettings: swiftSettings
         )

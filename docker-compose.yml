@@ -9,12 +9,11 @@ services:
 
   app:
     image: ginette:latest
+    platform: linux/amd64
     build:
       context: .
     environment:
       TOKEN: ${TOKEN}
       BROWSERLESS_URL: http://browserless:3000
-    ports:
-      - '8080:8080'
     depends_on:
       - browserless

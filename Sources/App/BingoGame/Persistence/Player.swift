@@ -1,37 +1,21 @@
 import Foundation
-import Fluent
 
-final class Player: Model {
-    static let schema: String = "players"
-    
-    @ID(key: .id)
-    var id: UUID?
-    
-    @Field(key: "discord_id")
-    var discordID: String
-    
-    @Field(key: "name")
-    var name: String
-    
-    @Parent(key: "game_id")
-    var game: BingoGame
-    
-    @Field(key: "tile_indices")
-    var tileIndices: [UInt]
-    
-    @Field(key: "did_bingo")
-    var didBingo: Bool
-    
-    init() {}
-}
+enum Player {
+    struct DTO: Codable, Equatable {
+        let id: UUID?
+        let discordID: String
+        let name: String
+        let gameID: UUID?
+        let tileIndices: [UInt]
+        var didBingo: Bool
 
-extension Player {
-    func update(from dto: DTO) {
-        self.id = dto.id
-        self.discordID = dto.discordID
-        self.name = dto.name
-        self._game.id = dto.gameID
-        self.tileIndices = dto.tileIndices
-        self.didBingo = dto.didBingo
+        init(id: UUID? = UUID(), discordID: String, name: String, gameID: UUID?, tileIndices: [UInt]) {
+            self.id = id
+            self.discordID = discordID
+            self.name = name
+            self.gameID = gameID
+            self.tileIndices = tileIndices
+            self.didBingo = false
+        }
     }
 }

@@ -1,40 +1,29 @@
 import Foundation
-import Fluent
 
-final class BingoGame: Model {
-    static let schema: String = "games"
-    
-    @ID(key: .id)
-    var id: UUID?
-    
-    @Field(key: "discord_guild_id")
-    var discordGuildID: String
+enum BingoGame {
+    struct DTO: Codable, Equatable {
+        let id: UUID?
+        let name: String
+        let discordGuildID: String
+        let tiles: [String]
+        let sheetSize: UInt
+        var filledTileIndices: Set<UInt>
+        var players: [Player.DTO]
 
-    @Field(key: "name")
-    var name: String
-    
-    @Field(key: "tiles")
-    var tiles: [String]
-    
-    @Field(key: "sheet_size")
-    var sheetSize: UInt
-    
-    @Field(key: "filled_tile_indices")
-    var filledTileIndices: Set<UInt>
-    
-    @Children(for: \.$game)
-    var players: [Player]
-    
-    init() {}
-}
-
-extension BingoGame {
-    func update(with dto: DTO) {
-        self.id = dto.id
-        self.discordGuildID = dto.discordGuildID
-        self.name = dto.name
-        self.tiles = dto.tiles
-        self.sheetSize = dto.sheetSize
-        self.filledTileIndices = dto.filledTileIndices
+        init(id: UUID? = UUID(),
+             name: String,
+             discordGuildID: String,
+             tiles: [String],
+             sheetSize: UInt,
+             filledTileIndices: Set<UInt> = [],
+             players: [Player.DTO] = []) {
+            self.id = id
+            self.name = name
+            self.discordGuildID = discordGuildID
+            self.tiles = tiles
+            self.sheetSize = sheetSize
+            self.filledTileIndices = filledTileIndices
+            self.players = players
+        }
     }
 }

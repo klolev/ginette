@@ -1,4 +1,4 @@
-FROM swift:5.10-jammy AS build
+FROM swift:6.1-jammy AS build
 
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
@@ -22,8 +22,6 @@ WORKDIR /staging
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/App" ./
 RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
 RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
-RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
-RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
 
 FROM ubuntu:jammy
 

@@ -1,11 +1,10 @@
-import Vapor
 import DiscordBM
 
 struct DiscordCommandCreationController {
     static let commandName = "ginette"
-    
+
     typealias Subcommand = DiscordCommandController.SubcommandType
-    
+
     static var command: Payloads.ApplicationCommandCreate {
         .init(
             name: Self.commandName,
@@ -23,10 +22,10 @@ struct DiscordCommandCreationController {
                 .init(type: .subCommand,
                       name: Subcommand.join.rawValue,
                       description: "Joins toi à la partie en cours"),
-                .init(type: .subCommand, 
+                .init(type: .subCommand,
                       name: Subcommand.sheet.rawValue,
                       description: "Voir ta feuille de bingo"),
-                .init(type: .subCommand, 
+                .init(type: .subCommand,
                       name: Subcommand.tiles.rawValue,
                       description: "Voir la liste des cases avec leurs numéros"),
                 .init(type: .subCommand,

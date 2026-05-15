@@ -1,5 +1,4 @@
 import DiscordBM
-import Vapor
 
 protocol AsDiscordInteractionHandlerError: Error {
     var asDiscordInteractionHandlerError: DiscordInteractionHandlerError { get }
@@ -13,7 +12,6 @@ enum DiscordInteractionHandlerError: AsDiscordInteractionHandlerError {
     case trashError(DiscordTrashCommandController.HandlingError)
     case sheetError(DiscordSheetCommandController.HandlingError)
     case memeError(DiscordMemeCommandController.HandlingError)
-//    case messageError(DiscordMessageCommandController.HandlingError)
     case helloError
 
     var asDiscordInteractionHandlerError: DiscordInteractionHandlerError { self }
@@ -26,14 +24,14 @@ enum DiscordInteractionResponse {
 
 protocol DiscordInteractionRequestHandler {
     associatedtype HandlingError: AsDiscordInteractionHandlerError
-    
+
     func on(interaction: Interaction,
-            app: Application) async throws -> Result<DiscordInteractionResponse?, HandlingError>?
+            store: GameStore) async throws -> Result<DiscordInteractionResponse?, HandlingError>?
 }
 
 extension DiscordInteractionRequestHandler {
     func on(interaction: Interaction,
-            app: Application) async throws -> Result<DiscordInteractionResponse?, DiscordInteractionHandlerError>? {
-        try await on(interaction: interaction, app: app)?.mapError(\.asDiscordInteractionHandlerError)
+            store: GameStore) async throws -> Result<DiscordInteractionResponse?, DiscordInteractionHandlerError>? {
+        try await on(interaction: interaction, store: store)?.mapError(\.asDiscordInteractionHandlerError)
     }
 }
