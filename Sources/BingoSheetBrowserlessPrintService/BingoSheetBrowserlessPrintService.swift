@@ -9,11 +9,14 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
     enum PrintError: Error {
         case httpError(Int)
         case emptyResponse
+        case badResponse
     }
 
-    private let screenshotURL: URL
+    private let browserlessURL: String
+    private var screenshotURL: URL
 
     public init(browserlessURL: String = ProcessInfo.processInfo.environment["BROWSERLESS_URL"] ?? "http://localhost:3000") {
+        self.browserlessURL = browserlessURL
         self.screenshotURL = URL(string: "\(browserlessURL)/screenshot")!
     }
 
@@ -34,22 +37,42 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
             "gotoOptions": ["waitUntil": "domcontentloaded"]
         ]
 
-        var request = URLRequest(url: screenshotURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let requestBody = try JSONSerialization.data(withJSONObject: body)
+        return try await sendWithRetry(body: requestBody, maxRetries: 5)
+    }
 
-        return try await withCheckedThrowingContinuation { continuation in
+    private func sendWithRetry(body: Data, maxRetries: Int) async throws -> Data {
+        for attempt in 0..<maxRetries {
+            var request = URLRequest(url: screenshotURL)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = body
+
+            let (data, statusCode) = try await send(request: request)
+
+            if statusCode == 429 || statusCode == 503 {
+                try await Task.sleep(nanoseconds: UInt64(100_000_000 * (attempt + 1)))
+                continue
+            }
+
+            guard statusCode == 200 else {
+                throw PrintError.httpError(statusCode)
+            }
+
+            return data
+        }
+        throw PrintError.httpError(503)
+    }
+
+    private func send(request: URLRequest) async throws -> (Data, Int) {
+        try await withCheckedThrowingContinuation { continuation in
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
                 }
-                if let http = response as? HTTPURLResponse, http.statusCode != 200 {
-                    continuation.resume(throwing: PrintError.httpError(http.statusCode))
-                    return
-                }
-                continuation.resume(returning: data ?? Data())
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+                continuation.resume(returning: (data ?? Data(), statusCode))
             }.resume()
         }
     }
@@ -69,6 +92,7 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
             .replacingOccurrences(of: "<", with: "&lt;")
             .replacingOccurrences(of: ">", with: "&gt;")
             .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "'", with: "&#39;")
     }
 
     private func generateHTML(for sheet: BingoSheetPrintInput, width: Int, height: Int) -> String {

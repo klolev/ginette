@@ -4,7 +4,8 @@ services:
   browserless:
     image: browserless/chrome:latest
     environment:
-      MAX_CONCURRENT_SESSIONS: 5
+      MAX_CONCURRENT_SESSIONS: 20
+      MAX_QUEUE_LENGTH: 50
       CONNECTION_TIMEOUT: 30000
 
   app:

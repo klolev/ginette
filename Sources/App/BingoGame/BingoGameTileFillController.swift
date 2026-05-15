@@ -161,14 +161,23 @@ public struct BingoGameTileFillController {
         game.filledTileIndices.insert(index)
         
         let affectedPlayers = game.players.filter { $0.tileIndices.contains(index) }
-        var affectedPlayersSheets = [Player.DTO: Data]()
-        for player in affectedPlayers {
-            do {
-                let data = try await printService.print(sheet: .init(fromPlayer: player, inGame: game))
-                affectedPlayersSheets[player] = data
-            } catch {
-                return .failure(.printError(error))
+        let affectedPlayersSheets: [Player.DTO: Data]
+        do {
+            affectedPlayersSheets = try await withThrowingTaskGroup(of: (Player.DTO, Data).self) { group in
+                for player in affectedPlayers {
+                    group.addTask {
+                        let data = try await printService.print(sheet: .init(fromPlayer: player, inGame: game))
+                        return (player, data)
+                    }
+                }
+                var results = [Player.DTO: Data]()
+                for try await (player, data) in group {
+                    results[player] = data
+                }
+                return results
             }
+        } catch {
+            return .failure(.printError(error))
         }
         
         return .success(.init(wins: get(winsIn: game, withNewlyFilledTile: index),
