@@ -22,10 +22,6 @@ enum Entrypoint {
 
         Task { await bot.connect() }
 
-        try await bot.client
-            .bulkSetApplicationCommands(payload: [DiscordCommandCreationController.command])
-            .guardSuccess()
-
         for await event in await bot.events {
             EventHandler(event: event, client: bot.client, store: store).handle()
         }
