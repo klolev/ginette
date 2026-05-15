@@ -11,11 +11,9 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
     }
 
     private func messageContents(fromTiles tiles: [BingoGameTilesController.Tile]) -> String {
-        let maxTileLength = max(10, 1900 / max(tiles.count, 1))
-        return tiles.enumerated()
+        tiles.enumerated()
             .map { (index, tile) in
-                let truncated = tile.value.count > maxTileLength ? String(tile.value.prefix(maxTileLength)) + "…" : tile.value
-                let value = "\(index): \(truncated)"
+                let value = "\(index): \(tile.value)"
                 return tile.filled ? "~~\(value)~~" : value
             }
             .joined(separator: "\n")
@@ -39,7 +37,13 @@ struct DiscordTilesCommandController: DiscordInteractionRequestHandler {
 
         switch await controller.get(tilesForGameInGuildWithID: guildID) {
         case .success(let tiles):
-            return .success(.editMessage(.init(content: messageContents(fromTiles: tiles))))
+            let content = messageContents(fromTiles: tiles)
+            let embeds = stride(from: 0, to: content.count, by: 4096).map { i in
+                let start = content.index(content.startIndex, offsetBy: i)
+                let end = content.index(start, offsetBy: min(4096, content.count - i))
+                return Embed(description: String(content[start..<end]))
+            }
+            return .success(.editMessage(.init(embeds: Array(embeds.prefix(10)))))
         case .failure(let error):
             return .failure(.tilesError(error))
         }
