@@ -108,7 +108,7 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
                 gridHTML += """
                 <div style='width:\(tileSize)px;height:\(tileSize)px;border:1px solid rgba(0,0,0,0.2);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:\(bg);flex-shrink:0;'>
                   <div style='position:absolute;top:0;left:0;font-size:12px;font-weight:bold;font-family:monospace;background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.1);padding:2px 4px;'>\(escapeHTML(tile.id))</div>
-                  <div class='tile-text' style='font-size:24px;font-weight:bold;text-align:center;padding:0 8px;word-break:break-word;color:black;'>\(escapeHTML(tile.value))</div>
+                  <div class='tile-text' style='font-size:24px;font-weight:bold;text-align:center;padding:0 8px;color:black;'>\(escapeHTML(tile.value))</div>
                 </div>
                 """
             }
@@ -141,6 +141,7 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
         document.querySelectorAll('.tile-text').forEach(el=>{
           const p=el.parentElement;let s=24;
           while(s>7&&(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth)){s--;el.style.fontSize=s+'px';}
+          if(el.scrollHeight>p.clientHeight||el.scrollWidth>p.clientWidth){el.style.wordBreak='break-word';}
         });
         </script>
         </body>
