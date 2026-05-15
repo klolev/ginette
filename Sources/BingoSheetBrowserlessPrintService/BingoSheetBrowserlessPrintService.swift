@@ -20,17 +20,16 @@ public struct BingoSheetBrowserlessPrintService: BingoSheetPrintService {
     public func print(sheet: BingoSheetPrintInput) async throws -> Data {
         let tileSize = 100
         let width = tileSize * Int(sheet.size) + 50
-        let height = tileSize * Int(sheet.size) + 100
+        let height = tileSize * Int(sheet.size) + 110
         let html = generateHTML(for: sheet, width: width, height: height)
 
         let body: [String: Any] = [
             "html": html,
             "selector": "#card",
             "options": [
-                "type": "jpeg",
-                "quality": 90
+                "type": "png"
             ],
-            "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 1],
+            "viewport": ["width": width + 100, "height": height + 100, "deviceScaleFactor": 2],
             "gotoOptions": ["waitUntil": "domcontentloaded"]
         ]
 

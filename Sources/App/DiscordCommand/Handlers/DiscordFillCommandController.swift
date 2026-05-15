@@ -54,7 +54,7 @@ struct DiscordFillCommandController: DiscordInteractionRequestHandler {
                         content: "OKIDOU! '\(result.filledTile)' EST REMPLI MA BELLE!! ✨ "
                             + result.affectedPlayers.keys.map { "<@\($0.discordID)>" }.joined(separator: ", "),
                         files: result.affectedPlayers.values.map { imageData in
-                            .init(data: ByteBuffer(data: imageData), filename: "sheet.jpeg")
+                            .init(data: ByteBuffer(data: imageData), filename: "sheet.png")
                         }
                     ))
                 )

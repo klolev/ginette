@@ -32,7 +32,7 @@ struct DiscordSheetCommandController: DiscordInteractionRequestHandler {
         switch await controller.get(sheetOfPlayerWithID: user.id.rawValue, inGuildWithID: guildID) {
         case .success(let imageData):
             return .success(.editMessage(.init(
-                files: [.init(data: ByteBuffer(data: imageData), filename: "sheet.jpeg")]
+                files: [.init(data: ByteBuffer(data: imageData), filename: "sheet.png")]
             )))
         case .failure(let error):
             return .failure(.sheetError(error))
