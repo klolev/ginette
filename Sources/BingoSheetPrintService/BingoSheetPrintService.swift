@@ -26,6 +26,6 @@ public struct BingoSheetPrintInput {
     }
 }
 
-public protocol BingoSheetPrintService {
+public protocol BingoSheetPrintService: Sendable {
     func print(sheet: BingoSheetPrintInput) async throws -> Data
 }
