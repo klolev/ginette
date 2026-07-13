@@ -31,15 +31,9 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q install -y libjemalloc2 ca-certificates tzdata \
     && rm -r /var/lib/apt/lists/*
 
-RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
-
 WORKDIR /app
-COPY --from=build --chown=vapor:vapor /staging /app
+COPY --from=build /staging /app
 
 ENV SWIFT_BACKTRACE=enable=yes,sanitize=yes,threads=all,images=all,interactive=no,swift-backtrace=./swift-backtrace-static
 
-USER vapor:vapor
-EXPOSE 8080
-
 ENTRYPOINT ["./App"]
-CMD ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
